@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>USTA Foundation — Templates &amp; Blocks Report</title>
+  <style>
+    :root { --primary:#1560D4; --secondary:#2E7CE4; --light:#eef4fc; --dark:#12233f; --border:#dee2e6; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; line-height:1.6; color:#222; background:#f5f7fa; padding:20px; }
+    .container { max-width:1400px; margin:0 auto; }
+    header { background:linear-gradient(135deg,var(--primary) 0%,#0a3f96 100%); color:#fff; padding:40px; border-radius:12px; margin-bottom:30px; box-shadow:0 4px 6px rgba(0,0,0,.1); }
+    header h1 { font-size:2.4rem; margin-bottom:8px; }
+    header p { opacity:.9; }
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:20px; margin-bottom:30px; }
+    .stat-card { background:#fff; padding:25px; border-radius:10px; box-shadow:0 2px 4px rgba(0,0,0,.05); text-align:center; }
+    .stat-card .number { font-size:2.4rem; font-weight:700; color:var(--primary); }
+    .stat-card .label { color:#666; font-size:.9rem; margin-top:5px; }
+    .section { background:#fff; border-radius:12px; padding:30px; margin-bottom:30px; box-shadow:0 2px 4px rgba(0,0,0,.05); }
+    .tab-buttons { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; border-bottom:3px solid var(--border); margin-bottom:25px; }
+    .tab-button { padding:14px 20px; border:2px solid var(--border); border-bottom:none; background:var(--light); color:var(--dark); cursor:pointer; font-size:.9rem; font-weight:600; border-radius:10px 10px 0 0; display:flex; align-items:center; gap:8px; }
+    .tab-button.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+    .tab-button .tab-count { background:rgba(0,0,0,.08); padding:2px 8px; border-radius:10px; font-size:.85rem; }
+    .tab-button.active .tab-count { background:rgba(255,255,255,.2); }
+    .tab-content { display:none; } .tab-content.active { display:block; }
+    .badge { display:inline-block; padding:4px 10px; border-radius:20px; font-size:.8rem; font-weight:600; }
+    .badge-success { background:#d4e5ff; color:#0a3f96; } .badge-primary { background:#cce5ff; color:#004085; }
+    .templates-stack { display:flex; flex-direction:column; gap:20px; }
+    .template-card { border:1px solid var(--border); border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+    .template-header { padding:15px 20px; background:var(--light); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .template-header h4 { display:flex; align-items:center; gap:10px; font-size:1rem; }
+    .template-header h4 .template-number { background:var(--primary); color:#fff; width:28px; height:28px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:.85rem; flex-shrink:0; }
+    .match-badge { background:var(--secondary); color:#fff; padding:5px 14px; border-radius:20px; font-size:.85rem; font-weight:700; white-space:nowrap; }
+    .match-badge.match-unique { background:#6c757d; }
+    .template-body { padding:20px; }
+    .template-url { display:inline-block; margin-bottom:12px; font-size:.85rem; color:var(--secondary); text-decoration:none; word-break:break-all; }
+    .template-url:hover { text-decoration:underline; }
+    .template-note { font-size:.82rem; color:#666; margin-bottom:12px; font-style:italic; }
+    .template-screenshot { position:relative; width:100%; max-width:1000px; height:340px; margin:0 auto; border-radius:8px; border:1px solid var(--border); overflow:hidden; cursor:zoom-in; transition:box-shadow .2s, transform .2s; }
+    .template-screenshot:hover { box-shadow:0 8px 24px rgba(0,0,0,.15); }
+    .template-screenshot img { width:100%; height:auto; display:block; }
+    .template-screenshot::after { content:''; position:absolute; left:0; right:0; bottom:0; height:80px; background:linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,.95)); pointer-events:none; }
+    .zoom-hint { position:absolute; bottom:12px; right:12px; background:rgba(21,96,212,.92); color:#fff; padding:6px 14px; border-radius:20px; font-size:.8rem; font-weight:600; opacity:0; transition:opacity .2s; pointer-events:none; }
+    .template-screenshot:hover .zoom-hint { opacity:1; }
+    .tpl-variant { margin-top:20px; padding-top:16px; border-top:1px dashed var(--border); }
+    .tpl-variant:first-of-type { margin-top:6px; padding-top:0; border-top:none; }
+    .tpl-variant-label { font-size:.92rem; color:var(--dark); margin-bottom:6px; }
+    .blocklib { display:flex; gap:24px; align-items:flex-start; }
+    .blocklib-nav { flex:0 0 220px; position:sticky; top:20px; display:flex; flex-direction:column; gap:4px; max-height:calc(100vh - 40px); overflow-y:auto; border-right:1px solid var(--border); padding-right:12px; }
+    .blocklib-tab { display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; text-align:left; padding:11px 14px; border:1px solid transparent; background:var(--light); color:var(--dark); cursor:pointer; font-size:.9rem; font-weight:600; border-radius:8px; transition:background .15s,color .15s; }
+    .blocklib-tab:hover { background:#dbe8fb; }
+    .blocklib-tab.active { background:var(--primary); color:#fff; }
+    .blocklib-tab-count { flex-shrink:0; background:rgba(0,0,0,.1); padding:1px 9px; border-radius:10px; font-size:.8rem; }
+    .blocklib-tab.active .blocklib-tab-count { background:rgba(255,255,255,.25); }
+    .blocklib-panels { flex:1 1 auto; min-width:0; }
+    .blocklib-panel { display:none; }
+    .blocklib-panel.active { display:block; }
+    .blocklib-panel-title { color:var(--primary); font-size:1.3rem; margin-bottom:18px; padding-bottom:10px; border-bottom:2px solid var(--border); display:flex; align-items:baseline; gap:12px; }
+    .blocklib-panel-count { font-size:.85rem; font-weight:600; color:#888; }
+    .blocks-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:20px; }
+    .block-card { background:#fff; border:1px solid var(--border); border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.08); display:flex; flex-direction:column; }
+    .block-header { padding:15px 20px; background:var(--light); border-bottom:1px solid var(--border); }
+    .block-header h3 { font-size:1rem; color:var(--dark); margin-bottom:8px; word-break:break-word; }
+    .block-badges { display:flex; gap:8px; flex-wrap:wrap; }
+    .block-screenshots { padding:12px; background:#fafafa; min-height:120px; }
+    .screenshot-item { border-radius:6px; overflow:hidden; border:1px solid var(--border); cursor:pointer; background:#fff; }
+    .screenshot-item img { width:100%; height:auto; display:block; }
+    .no-screenshot { display:flex; align-items:center; justify-content:center; color:#999; font-style:italic; min-height:120px; }
+    .block-notes { padding:10px 20px; font-size:.85rem; color:#555; }
+    .block-url { display:block; padding:0 20px 14px; font-size:.75rem; color:var(--secondary); text-decoration:none; word-break:break-all; }
+    .block-url:hover { text-decoration:underline; }
+    /* Buttons tab */
+    .btn-note-bar { background:var(--light); border:1px solid var(--border); border-radius:8px; padding:12px 16px; margin-bottom:20px; font-size:.88rem; color:var(--dark); }
+    .buttons-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:20px; }
+    .button-card { background:#fff; border:1px solid var(--border); border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.08); display:flex; flex-direction:column; }
+    .button-card .block-header { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .button-shot { padding:18px; background:#fafafa; display:flex; align-items:center; justify-content:center; min-height:110px; }
+    .button-shot img { max-width:100%; height:auto; border-radius:6px; border:1px solid var(--border); cursor:pointer; background:#fff; }
+    .button-meta { padding:12px 20px; font-size:.85rem; color:#444; }
+    .button-meta table { width:100%; border-collapse:collapse; }
+    .button-meta td { padding:4px 0; vertical-align:top; }
+    .button-meta td.k { color:#888; width:96px; white-space:nowrap; font-weight:600; }
+    .button-usage { padding:0 20px 14px; }
+    .button-usage table { width:100%; border-collapse:collapse; font-size:.8rem; }
+    .button-usage th { text-align:left; color:#888; font-weight:600; border-bottom:1px solid var(--border); padding:6px 8px; }
+    .button-usage td { padding:6px 8px; border-bottom:1px solid #f0f0f0; vertical-align:top; }
+    .button-usage a { color:var(--secondary); text-decoration:none; word-break:break-all; }
+    .button-usage a:hover { text-decoration:underline; }
+    .button-count { display:inline-block; background:var(--light); color:var(--primary); font-weight:700; border-radius:10px; padding:1px 9px; }
+    .modal { display:none; position:fixed; inset:0; background:rgba(10,20,40,.92); z-index:10000; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
+    .modal.active { display:block; }
+    .modal-bar { position:sticky; top:0; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 24px; background:rgba(21,96,212,.97); color:#fff; box-shadow:0 2px 8px rgba(0,0,0,.3); }
+    .modal-bar .modal-title { font-size:1rem; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .modal-close { flex-shrink:0; background:rgba(255,255,255,.15); color:#fff; border:none; width:38px; height:38px; border-radius:50%; font-size:1.4rem; line-height:1; cursor:pointer; transition:background .2s; }
+    .modal-close:hover { background:rgba(255,255,255,.3); }
+    .modal-content { max-width:1100px; margin:24px auto; padding:0 24px 60px; }
+    .modal-content img { width:100%; height:auto; display:block; border-radius:8px; box-shadow:0 10px 40px rgba(0,0,0,.4); background:#fff; }
+    footer { text-align:center; padding:20px; color:#999; font-size:.85rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>USTA Foundation</h1>
+      <p>Templates &amp; Blocks Report — ustafoundation.com</p>
+      <p style="margin-top:8px;opacity:.8;">Generated: August 4, 2026</p>
+    </header>
+
+    <section id="page-urls" style="background:#fff;border:1px solid #dee2e6;border-radius:12px;padding:0;margin-bottom:22px;box-shadow:0 2px 4px rgba(0,0,0,.05);overflow:hidden;">
+      <button type="button" onclick="puToggle(this)" style="width:100%;text-align:left;border:none;background:linear-gradient(135deg,#1560D4,#0a3f96);color:#fff;padding:16px 22px;cursor:pointer;font-size:1.05rem;font-weight:700;display:flex;align-items:center;justify-content:space-between;">
+        <span><span class="pu-caret">▶</span>&nbsp; Page URLs in Scope (86)</span>
+        <span style="font-size:.8rem;font-weight:600;opacity:.9;">click to expand / collapse</span>
+      </button>
+      <div id="pu-body" style="display:none;padding:18px 22px;">
+        <div style="margin-bottom:12px;">
+          <button type="button" onclick="puDownload()" style="border:1px solid #1560D4;background:#1560D4;color:#fff;padding:9px 18px;border-radius:8px;cursor:pointer;font-weight:600;font-size:.85rem;">⬇ Download usta-foundation-urls.txt</button>
+          <span style="font-size:.82rem;color:#666;margin-left:10px;">86 URLs</span>
+        </div>
+        <ol style="margin:0;font-size:.85rem;line-height:1.9;color:#2E7CE4;max-height:520px;overflow-y:auto;border:1px solid #eee;border-radius:8px;padding:12px 12px 12px 34px;background:#fafcff;"><li><a href="https://www.ustafoundation.com/" target="_blank" rel="noopener">https://www.ustafoundation.com/</a></li><li><a href="https://www.ustafoundation.com/en/home.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home.html</a></li><li><a href="https://www.ustafoundation.com/en/home/who-we-are.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/who-we-are.html</a></li><li><a href="https://www.ustafoundation.com/en/home/who-we-are/leadership-and-staff.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/who-we-are/leadership-and-staff.html</a></li><li><a href="https://www.ustafoundation.com/en/home/who-we-are/financials.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/who-we-are/financials.html</a></li><li><a href="https://www.ustafoundation.com/en/home/our-impact.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/our-impact.html</a></li><li><a href="https://www.ustafoundation.com/en/home/what-we-do.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/what-we-do.html</a></li><li><a href="https://www.ustafoundation.com/en/home/what-we-do/college-scholarship-opportunities.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/what-we-do/college-scholarship-opportunities.html</a></li><li><a href="https://www.ustafoundation.com/en/home/get-involved.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/get-involved.html</a></li><li><a href="https://www.ustafoundation.com/en/home/get-involved/special-funds.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/get-involved/special-funds.html</a></li><li><a href="https://www.ustafoundation.com/en/home/get-involved/special-funds/chris-evert-50th-anniversary.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/get-involved/special-funds/chris-evert-50th-anniversary.html</a></li><li><a href="https://www.ustafoundation.com/en/home/get-involved/young-professional-initiative.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/get-involved/young-professional-initiative.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/2023-njtl-essay-contest-winners.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/2023-njtl-essay-contest-winners.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/six-student-athletes-awarded-first-grants-frances-tiafoe-fund.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/six-student-athletes-awarded-first-grants-frances-tiafoe-fund.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/chris-evert-usta-foundation-much-more.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/chris-evert-usta-foundation-much-more.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/espn-chris-mckendry-supports-usta-foundation.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/espn-chris-mckendry-supports-usta-foundation.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/inaugural-usta-foundation-impact-conference.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/inaugural-usta-foundation-impact-conference.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/newport-njtl-honor-chris-evert.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/newport-njtl-honor-chris-evert.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/kimmelman-sport-education-complex-los-angeles.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/kimmelman-sport-education-complex-los-angeles.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/frances-tiafoe-presents-check-to-jtcc.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/frances-tiafoe-presents-check-to-jtcc.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/carol-ngounoue-runner-up-wimbledon-event.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/carol-ngounoue-runner-up-wimbledon-event.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/njtl-essay-contest-winners-2024-open.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/njtl-essay-contest-winners-2024-open.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/robin-montgomery-investing-in-game.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/robin-montgomery-investing-in-game.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/novo-nordisk-donnelly-scholarship-winners-meet-billie-jean-king.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/novo-nordisk-donnelly-scholarship-winners-meet-billie-jean-king.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/kathleen-wu-usta-foundation-president.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/kathleen-wu-usta-foundation-president.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/njtl-student-athletes-white-house-visit.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/njtl-student-athletes-white-house-visit.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/robin-montgomery-wimbledon-debut.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/robin-montgomery-wimbledon-debut.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/tiafoe-houston-youth-clinic.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/tiafoe-houston-youth-clinic.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/jinjie-ling-dwight-f-davis-memorial-scholarship.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/jinjie-ling-dwight-f-davis-memorial-scholarship.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/james-blake-30th-anniversary-usta-foundation.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/james-blake-30th-anniversary-usta-foundation.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/clervie-ngounoue-first-junior-grand-slam-australia.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/clervie-ngounoue-first-junior-grand-slam-australia.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/chris-evert-honored-espn-sports-humanitarian-awards.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/chris-evert-honored-espn-sports-humanitarian-awards.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/njtl-student-athlete-ata-national-championships.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/njtl-student-athlete-ata-national-championships.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-announces-chris-evert-chair.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-announces-chris-evert-chair.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/ngounoue-excellence-team-junior-french-open.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/ngounoue-excellence-team-junior-french-open.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/njtl-ace-jabeiro-brown.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/njtl-ace-jabeiro-brown.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/chris-evert-honored-espys-usta-foundation-work.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/chris-evert-honored-espys-usta-foundation-work.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/clervie-ngounoue-wins-first-junior-grand-slam-australian-open.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/clervie-ngounoue-wins-first-junior-grand-slam-australian-open.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/mississippi-njtl-family-biz-builder.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/mississippi-njtl-family-biz-builder.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/kyrgios-sock-njtl-clinic-laver-cup-boston.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/kyrgios-sock-njtl-clinic-laver-cup-boston.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-chris-evert-honored-itf-commitment-award.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-chris-evert-honored-itf-commitment-award.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-chairperson-chris-evert-announces-cancer-free.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-chairperson-chris-evert-announces-cancer-free.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-rally-to-rebuild-campaign.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-rally-to-rebuild-campaign.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-exceeds-goal-rally-to-rebuild-campaign.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-exceeds-goal-rally-to-rebuild-campaign.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/njtl-essay-grant-recipients-2020.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/njtl-essay-grant-recipients-2020.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/evert-speaks-on-rally-to-rebuild.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/evert-speaks-on-rally-to-rebuild.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/sloane-stephens-honored-by-sports-business-journal.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/sloane-stephens-honored-by-sports-business-journal.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/mackenzie-mcdonald-celebrates-the-launch-of-the-usta-foundation-.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/mackenzie-mcdonald-celebrates-the-launch-of-the-usta-foundation-.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-teams-up-with-la-roche-posay-for-events-at-selec.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-teams-up-with-la-roche-posay-for-events-at-selec.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/frances-tiafoe-holds-clinic-for-youth-from-houston-tennis-associ.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/frances-tiafoe-holds-clinic-for-youth-from-houston-tennis-associ.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/delray-beach-youth-tennis-foundation-athletes-hit-the-court-with.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/delray-beach-youth-tennis-foundation-athletes-hit-the-court-with.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/mackenzie-mcdonald---i-m-making-it-my-mission-to-help-open-the-s.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/mackenzie-mcdonald---i-m-making-it-my-mission-to-help-open-the-s.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/leylah-fernandez-partners-with-usta-socal-and-bgcmla-for-youth-c.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/leylah-fernandez-partners-with-usta-socal-and-bgcmla-for-youth-c.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/excellence-program-alumna-robin-montgomery-reaches-first-wta-sem.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/excellence-program-alumna-robin-montgomery-reaches-first-wta-sem.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-announces-new-advisory-board-members.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-announces-new-advisory-board-members.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/what-s-the-why--former-atp--wta-pros-open-up-on-their-support-of.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/what-s-the-why--former-atp--wta-pros-open-up-on-their-support-of.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/fashion-icon-anna-wintour-honored-with-usta-foundation-paver-on-.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/fashion-icon-anna-wintour-honored-with-usta-foundation-paver-on-.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/laver-cup-launches-2025-san-francisco-community-legacy-project-w.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/laver-cup-launches-2025-san-francisco-community-legacy-project-w.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-to-honor-andre-agassi-with-serving-up-dreams-awa.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-to-honor-andre-agassi-with-serving-up-dreams-awa.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/frances-tiafoe-awards-njtl-alumnus-with-college-scholarship.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/frances-tiafoe-awards-njtl-alumnus-with-college-scholarship.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-to-celebrate-winners-of-2025-national-junior-ten.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-to-celebrate-winners-of-2025-national-junior-ten.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-launches-community-impact-hub-initiative.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-launches-community-impact-hub-initiative.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-scholarship-recipients-meet-billie-jean-king-at-.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-scholarship-recipients-meet-billie-jean-king-at-.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-launches-williams-family-excellence-program-at-2.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-launches-williams-family-excellence-program-at-2.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/laver-cup-community-legacy-project-celebrates-court-unveiling-at.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/laver-cup-community-legacy-project-celebrates-court-unveiling-at.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/-daymond-john-and-matt-ebert-share-wisdom-with-usta-foundation-s.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/-daymond-john-and-matt-ebert-share-wisdom-with-usta-foundation-s.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-receives-transformative--2-7-million-gift-from-t.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-receives-transformative--2-7-million-gift-from-t.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-pledges-800-000-service-hours-in-support-of-mart.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-pledges-800-000-service-hours-in-support-of-mart.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/black-history-month-2026--community-impact-hub-leader-john-borde.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/black-history-month-2026--community-impact-hub-leader-john-borde.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/desert-smash-brings-together-hollywood-and-pro-tennis-to-benefit.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/desert-smash-brings-together-hollywood-and-pro-tennis-to-benefit.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/kings-county-tennis-league-nominated-for-laureus-sport-for-good-.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/kings-county-tennis-league-nominated-for-laureus-sport-for-good-.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/how-the-usta-foundation-and-realize-the-dream-are-set-to-inspire.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/how-the-usta-foundation-and-realize-the-dream-are-set-to-inspire.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/women-s-history-month-2026--how-two-community-impact-hub-leaders.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/women-s-history-month-2026--how-two-community-impact-hub-leaders.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-and-reginald-f--lewis-foundation-partner-to-empo.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-and-reginald-f--lewis-foundation-partner-to-empo.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-and-yonex-team-up-to-transform-communities-and-e.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-and-yonex-team-up-to-transform-communities-and-e.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-partners-with-chase-to-award-over--250-000-to-he.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-partners-with-chase-to-award-over--250-000-to-he.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-announces-sloane-stephens-as-recipient-of-servin.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-announces-sloane-stephens-as-recipient-of-servin.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/frances-tiafoe-fund-surpasses--1-million-raised.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/frances-tiafoe-fund-surpasses--1-million-raised.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/-tennis-has-been-my-vehicle-to-serve---sloane-stephens-shares-he.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/-tennis-has-been-my-vehicle-to-serve---sloane-stephens-shares-he.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/2026-usta-foundation-opening-night-gala-provides-young-people-wi.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/2026-usta-foundation-opening-night-gala-provides-young-people-wi.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation--offline-by-aerie---and-the-aerie-real-foundatio.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation--offline-by-aerie---and-the-aerie-real-foundatio.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation--reginald-f--lewis-foundation-announce-inaugural.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation--reginald-f--lewis-foundation-announce-inaugural.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-celebrates-2026-njtl-essay-contest-winners-at-us.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-celebrates-2026-njtl-essay-contest-winners-at-us.html</a></li><li><a href="https://www.ustafoundation.com/en/home/news/usta-foundation-scholarship-recipients-meet-billie-jean-king-at-0.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-scholarship-recipients-meet-billie-jean-king-at-0.html</a></li><li><a href="https://www.ustafoundation.com/en/home/404.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/404.html</a></li></ol>
+      </div>
+    </section>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="number">86</div><div class="label">Total URLs in Scope</div></div>
+      <div class="stat-card"><div class="number">7</div><div class="label">Page Templates</div></div>
+      <div class="stat-card"><div class="number">86</div><div class="label">Pages Mapped to Templates</div></div>
+      <div class="stat-card"><div class="number">16</div><div class="label">Block Families</div></div>
+      <div class="stat-card"><div class="number">29</div><div class="label">Block Variants</div></div>
+      <div class="stat-card"><div class="number">Yes</div><div class="label">Custom / API Blocks</div></div>
+    </div>
+
+    <div class="section">
+      <div class="tab-buttons">
+        <button type="button" class="tab-button active" onclick="switchTab(event,'templates')">Page Templates<span class="tab-count">7</span></button>
+        <button type="button" class="tab-button" onclick="switchTab(event,'blocks')">Block Library<span class="tab-count">29</span></button>
+        <button type="button" class="tab-button" onclick="switchTab(event,'buttons')">Buttons<span class="tab-count">1</span></button>
+      </div>
+
+      <div id="tab-templates" class="tab-content active">
+        <div class="templates-stack">
+        <div class="template-card">
+          <div class="template-header">
+            <h4><span class="template-number">1</span><span class="template-name">Home</span></h4>
+            <span class="match-badge match-unique">1 page</span>
+          </div>
+          <div class="template-body">
+            <a class="template-url" href="https://www.ustafoundation.com/en/home.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home.html</a>
+            <p class="template-note">Landing homepage — hero + impact stats ribbon + columns (text/media &amp; video) + cards grid.</p>
+            <div class="template-screenshot"><img src="images/img-01-bf33b112.png" alt="Home" loading="lazy" onclick="openModal(this.src, this.alt)"><span class="zoom-hint">Click to view full template</span></div>
+          </div>
+        </div>
+        <div class="template-card">
+          <div class="template-header">
+            <h4><span class="template-number">2</span><span class="template-name">News Detail</span></h4>
+            <span class="match-badge">5 variant sets (T1)</span>
+          </div>
+          <div class="template-body">
+            <p class="template-note">Individual news article template — title, rich-text body, share bar, reactions, dynamic Related Articles. ~67 pages match; bulk-migration opportunity. Five representative variant sets:</p>
+            <div class="tpl-variant">
+              <h5 class="tpl-variant-label">Baseline / social-right (Aerie)</h5>
+              <a class="template-url" href="https://www.ustafoundation.com/en/home/news/usta-foundation--offline-by-aerie---and-the-aerie-real-foundatio.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation--offline-by-aerie---and-the-aerie-real-foundatio.html</a>
+              <div class="template-screenshot"><img src="images/img-02-2c14fab9.png" alt="News Detail — Baseline / social-right (Aerie)" loading="lazy" onclick="openModal(this.src, this.alt)"><span class="zoom-hint">Click to view full template</span></div>
+            </div>
+            <div class="tpl-variant">
+              <h5 class="tpl-variant-label">Tweet + Instagram embeds</h5>
+              <a class="template-url" href="https://www.ustafoundation.com/en/home/news/ngounoue-excellence-team-junior-french-open.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/ngounoue-excellence-team-junior-french-open.html</a>
+              <div class="template-screenshot"><img src="images/img-03-d2ad2453.png" alt="News Detail — Tweet + Instagram embeds" loading="lazy" onclick="openModal(this.src, this.alt)"><span class="zoom-hint">Click to view full template</span></div>
+            </div>
+            <div class="tpl-variant">
+              <h5 class="tpl-variant-label">Table (winners lists)</h5>
+              <a class="template-url" href="https://www.ustafoundation.com/en/home/news/2023-njtl-essay-contest-winners.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/2023-njtl-essay-contest-winners.html</a>
+              <div class="template-screenshot"><img src="images/img-04-65cc52a3.png" alt="News Detail — Table (winners lists)" loading="lazy" onclick="openModal(this.src, this.alt)"><span class="zoom-hint">Click to view full template</span></div>
+            </div>
+            <div class="tpl-variant">
+              <h5 class="tpl-variant-label">Video-embed split</h5>
+              <a class="template-url" href="https://www.ustafoundation.com/en/home/news/usta-foundation-launches-community-impact-hub-initiative.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-launches-community-impact-hub-initiative.html</a>
+              <div class="template-screenshot"><img src="images/img-05-c09f74ee.png" alt="News Detail — Video-embed split" loading="lazy" onclick="openModal(this.src, this.alt)"><span class="zoom-hint">Click to view full template</span></div>
+            </div>
+            <div class="tpl-variant">
+              <h5 class="tpl-variant-label">Multi-image + layout-table flatten</h5>
+              <a class="template-url" href="https://www.ustafoundation.com/en/home/news/njtl-ace-jabeiro-brown.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/njtl-ace-jabeiro-brown.html</a>
+              <div class="template-screenshot"><img src="images/img-06-103e6203.png" alt="News Detail — Multi-image + layout-table flatten" loading="lazy" onclick="openModal(this.src, this.alt)"><span class="zoom-hint">Click to view full template</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="template-card">
+          <div class="template-header">
+            <h4><span class="template-number">3</span><span class="template-name">News Listing</span></h4>
+            <span class="match-badge match-unique">1 page</span>
+          </div>
+          <div class="template-body">
+            <a class="template-url" href="https://www.ustafoundation.com/en/home/news.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news.html</a>
+            <p class="template-note">News landing/listing page — currently a blank container (header + footer only).</p>
+            <div class="template-screenshot"><img src="images/img-07-7e55c20b.png" alt="News Listing" loading="lazy" onclick="openModal(this.src, this.alt)"><span class="zoom-hint">Click to view full template</span></div>
+          </div>
+        </div>
+        <div class="template-card">
+          <div class="template-header">
+            <h4><span class="template-number">4</span><span class="template-name">Section Landing</span></h4>
+            <span class="match-badge">4 distinct (T3)</span>
+          </div>
+          <div class="template-body">
+            <p class="template-note">Section landing pages — hero + stats + columns/cards. Four distinct layouts:</p>
+            <div class="tpl-variant">
+              <h5 class="tpl-variant-label">who-we-are</h5>
+              <a class="template-url" href="https://www.ustafoundation.com/en/home/who-we-are.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/who-we-are.html</a>
+              <div class="template-screenshot"><img src="images/img-08-95d96ccb.png" alt="Section Landing — who-we-are" loading="lazy" onclick="openModal(this.src, this.alt)"><span class="zoom-hint">Click to view full template</span></div>
+            </div>
+            <div class="tpl-variant">
+              <h5 class="tpl-variant-label">get-involved</h5>
+              <a class="template-url" href="https://www.ustafoundation.com/en/home/get-involved.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/get-involved.html</a>
+              <div class="template-screenshot"><img src="images/img-09-03c2ecdd.png" alt="Section Landing — get-involved" loading="lazy" onclick="openModal(this.src, this.alt)"><span class="zoom-hint">Click to view full template</span></div>
+            </div>
+            <div class="tpl-variant">
+              <h5 class="tpl-variant-label">what-we-do</h5>
+              <a class="template-url" href="https://www.ustafoundation.com/en/home/what-we-do.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/what-we-do.html</a>
+              <div class="template-screenshot"><img src="images/img-10-148f35fe.png" alt="Section Landing — what-we-do" loading="lazy" onclick="openModal(this.src, this.alt)"><span class="zoom-hint">Click to view full template</span></div>
+            </div>
+            <div class="tpl-variant">
+              <h5 class="tpl-variant-label">our-impact</h5>
+              <a class="template-url" href="https://www.ustafoundation.com/en/home/our-impact.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/our-impact.html</a>
+              <div class="template-screenshot"><img src="images/img-11-fef6f0ec.png" alt="Section Landing — our-impact" loading="lazy" onclick="openModal(this.src, this.alt)"><span class="zoom-hint">Click to view full template</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="template-card">
+          <div class="template-header">
+            <h4><span class="template-number">5</span><span class="template-name">Leadership &amp; Staff</span></h4>
+            <span class="match-badge match-unique">1 page</span>
+          </div>
+          <div class="template-body">
+            <a class="template-url" href="https://www.ustafoundation.com/en/home/who-we-are/leadership-and-staff.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/who-we-are/leadership-and-staff.html</a>
+            <p class="template-note">Tabbed Staff / Board of Directors — profile cards + multi-column name directory.</p>
+            <div class="template-screenshot"><img src="images/img-12-d8e17f69.png" alt="Leadership &amp; Staff" loading="lazy" onclick="openModal(this.src, this.alt)"><span class="zoom-hint">Click to view full template</span></div>
+          </div>
+        </div>
+        <div class="template-card">
+          <div class="template-header">
+            <h4><span class="template-number">6</span><span class="template-name">Financials</span></h4>
+            <span class="match-badge match-unique">1 page</span>
+          </div>
+          <div class="template-body">
+            <a class="template-url" href="https://www.ustafoundation.com/en/home/who-we-are/financials.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/who-we-are/financials.html</a>
+            <p class="template-note">Annual Reports &amp; Financial Information — grouped download-link lists (Annual Reports / Audited Financials / IRS 990).</p>
+            <div class="template-screenshot"><img src="images/img-13-14cf3771.png" alt="Financials" loading="lazy" onclick="openModal(this.src, this.alt)"><span class="zoom-hint">Click to view full template</span></div>
+          </div>
+        </div>
+        <div class="template-card">
+          <div class="template-header">
+            <h4><span class="template-number">7</span><span class="template-name">Special Funds / Campaign</span></h4>
+            <span class="match-badge">4 distinct (T6)</span>
+          </div>
+          <div class="template-body">
+            <p class="template-note">Special funds &amp; campaign pages — alternating media+text bands, fund cards, embedded donation widgets. Four distinct layouts:</p>
+            <div class="tpl-variant">
+              <h5 class="tpl-variant-label">special-funds</h5>
+              <a class="template-url" href="https://www.ustafoundation.com/en/home/get-involved/special-funds.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/get-involved/special-funds.html</a>
+              <div class="template-screenshot"><img src="images/img-14-369fbad3.png" alt="Special Funds / Campaign — special-funds" loading="lazy" onclick="openModal(this.src, this.alt)"><span class="zoom-hint">Click to view full template</span></div>
+            </div>
+            <div class="tpl-variant">
+              <h5 class="tpl-variant-label">young-professional-initiative</h5>
+              <a class="template-url" href="https://www.ustafoundation.com/en/home/get-involved/young-professional-initiative.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/get-involved/young-professional-initiative.html</a>
+              <div class="template-screenshot"><img src="images/img-15-25a34408.png" alt="Special Funds / Campaign — young-professional-initiative" loading="lazy" onclick="openModal(this.src, this.alt)"><span class="zoom-hint">Click to view full template</span></div>
+            </div>
+            <div class="tpl-variant">
+              <h5 class="tpl-variant-label">chris-evert-50th-anniversary</h5>
+              <a class="template-url" href="https://www.ustafoundation.com/en/home/get-involved/special-funds/chris-evert-50th-anniversary.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/get-involved/special-funds/chris-evert-50th-anniversary.html</a>
+              <div class="template-screenshot"><img src="images/img-16-4d22a72d.png" alt="Special Funds / Campaign — chris-evert-50th-anniversary" loading="lazy" onclick="openModal(this.src, this.alt)"><span class="zoom-hint">Click to view full template</span></div>
+            </div>
+            <div class="tpl-variant">
+              <h5 class="tpl-variant-label">college-scholarship-opportunities</h5>
+              <a class="template-url" href="https://www.ustafoundation.com/en/home/what-we-do/college-scholarship-opportunities.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/what-we-do/college-scholarship-opportunities.html</a>
+              <div class="template-screenshot"><img src="images/img-17-78975bba.png" alt="Special Funds / Campaign — college-scholarship-opportunities" loading="lazy" onclick="openModal(this.src, this.alt)"><span class="zoom-hint">Click to view full template</span></div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+
+      <div id="tab-blocks" class="tab-content">
+        <p style="margin:0 0 15px;color:#555;">29 block variants across 16 master block families. Select a block on the left to view its variants.</p>
+        <div class="blocklib">
+          <nav class="blocklib-nav">
+          <button type="button" class="blocklib-tab active" onclick="switchBlockFamily(event,'header')">
+            <span class="blocklib-tab-name">Header</span><span class="blocklib-tab-count">1</span>
+          </button>
+          <button type="button" class="blocklib-tab" onclick="switchBlockFamily(event,'footer')">
+            <span class="blocklib-tab-name">Footer</span><span class="blocklib-tab-count">1</span>
+          </button>
+          <button type="button" class="blocklib-tab" onclick="switchBlockFamily(event,'hero')">
+            <span class="blocklib-tab-name">Hero</span><span class="blocklib-tab-count">2</span>
+          </button>
+          <button type="button" class="blocklib-tab" onclick="switchBlockFamily(event,'custom-widget')">
+            <span class="blocklib-tab-name">Custom Widget</span><span class="blocklib-tab-count">2</span>
+          </button>
+          <button type="button" class="blocklib-tab" onclick="switchBlockFamily(event,'banner')">
+            <span class="blocklib-tab-name">Banner</span><span class="blocklib-tab-count">1</span>
+          </button>
+          <button type="button" class="blocklib-tab" onclick="switchBlockFamily(event,'columns')">
+            <span class="blocklib-tab-name">Columns</span><span class="blocklib-tab-count">3</span>
+          </button>
+          <button type="button" class="blocklib-tab" onclick="switchBlockFamily(event,'cards')">
+            <span class="blocklib-tab-name">Cards</span><span class="blocklib-tab-count">7</span>
+          </button>
+          <button type="button" class="blocklib-tab" onclick="switchBlockFamily(event,'toc-profile')">
+            <span class="blocklib-tab-name">Toc Profile</span><span class="blocklib-tab-count">1</span>
+          </button>
+          <button type="button" class="blocklib-tab" onclick="switchBlockFamily(event,'quote')">
+            <span class="blocklib-tab-name">Quote</span><span class="blocklib-tab-count">3</span>
+          </button>
+          <button type="button" class="blocklib-tab" onclick="switchBlockFamily(event,'table')">
+            <span class="blocklib-tab-name">Table</span><span class="blocklib-tab-count">2</span>
+          </button>
+          <button type="button" class="blocklib-tab" onclick="switchBlockFamily(event,'social')">
+            <span class="blocklib-tab-name">Social</span><span class="blocklib-tab-count">1</span>
+          </button>
+          <button type="button" class="blocklib-tab" onclick="switchBlockFamily(event,'custom-content')">
+            <span class="blocklib-tab-name">Custom Content</span><span class="blocklib-tab-count">1</span>
+          </button>
+          <button type="button" class="blocklib-tab" onclick="switchBlockFamily(event,'embed')">
+            <span class="blocklib-tab-name">Embed</span><span class="blocklib-tab-count">1</span>
+          </button>
+          <button type="button" class="blocklib-tab" onclick="switchBlockFamily(event,'video')">
+            <span class="blocklib-tab-name">Video</span><span class="blocklib-tab-count">1</span>
+          </button>
+          <button type="button" class="blocklib-tab" onclick="switchBlockFamily(event,'custom-form')">
+            <span class="blocklib-tab-name">Custom Form</span><span class="blocklib-tab-count">1</span>
+          </button>
+          <button type="button" class="blocklib-tab" onclick="switchBlockFamily(event,'spacer')">
+            <span class="blocklib-tab-name">Spacer</span><span class="blocklib-tab-count">1</span>
+          </button>
+          </nav>
+          <div class="blocklib-panels">
+          <div id="blockfam-header" class="blocklib-panel active">
+            <h3 class="blocklib-panel-title">Header<span class="blocklib-panel-count">1 variant</span></h3>
+            <div class="blocks-grid">
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Header</h3>
+            <div class="block-badges"><span class="badge badge-success">Global</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-18-b6183449.png" alt="Header" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Global header: logo + primary nav with dropdown submenu (Get Involved) + Donate CTA + breadcrumb row. Dropdown behavior on nav items.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home.html</a>
+        </div>
+            </div>
+          </div>
+          <div id="blockfam-footer" class="blocklib-panel">
+            <h3 class="blocklib-panel-title">Footer<span class="blocklib-panel-count">1 variant</span></h3>
+            <div class="blocks-grid">
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Footer</h3>
+            <div class="block-badges"><span class="badge badge-success">Global</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-19-28091438.png" alt="Footer" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Global footer: logo + Keep Up With Us CTA + nav links + social icons (FB/IG/LinkedIn) + copyright and legal links.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home.html</a>
+        </div>
+            </div>
+          </div>
+          <div id="blockfam-hero" class="blocklib-panel">
+            <h3 class="blocklib-panel-title">Hero<span class="blocklib-panel-count">2 variants</span></h3>
+            <div class="blocks-grid">
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Hero</h3>
+            <div class="block-badges"><span class="badge badge-success">Homepage</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-20-ed22c3cb.png" alt="Hero" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Full-bleed hero: background image with overlaid heading + subtext + Learn More CTA button. Sticky Donate tab is a separate global widget.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home.html</a>
+        </div>
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Hero Error</h3>
+            <div class="block-badges"><span class="badge badge-success">404 / Error</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-21-ba7bf60a.png" alt="Hero Error" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Error hero: centered bouncing tennis-ball graphic + &quot;Sorry we couldn&#x27;t find that page&quot; heading + &quot;Take Me Back To The Homepage&quot; CTA. 404 page variant. (Screenshot in screenshots-templates/404.png.)</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/404.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/404.html</a>
+        </div>
+            </div>
+          </div>
+          <div id="blockfam-custom-widget" class="blocklib-panel">
+            <h3 class="blocklib-panel-title">Custom Widget<span class="blocklib-panel-count">2 variants</span></h3>
+            <div class="blocks-grid">
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Custom Widget Donate</h3>
+            <div class="block-badges"><span class="badge badge-success">Homepage</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-22-e62109c8.png" alt="Custom Widget Donate" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Sticky right-edge Donate tab opens a modal donation form (Give once/Monthly toggle + preset amount tiers + custom amount + designation dropdown + Google Pay/card methods). Third-party donation platform embed. Global widget across all pages.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home.html</a>
+        </div>
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Custom Widget Reactions</h3>
+            <div class="block-badges"><span class="badge badge-success">News Detail</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-23-4ac441ce.png" alt="Custom Widget Reactions" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Emoji reactions widget: heading + emoji buttons (smile/thumbs-up/heart/clap/thumbs-down/bulb) + Be the first to add a reaction prompt. Interactive with persisted reaction counts (backend/API dependency).</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/news/2023-njtl-essay-contest-winners.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/2023-njtl-essay-contest-winners.html</a>
+        </div>
+            </div>
+          </div>
+          <div id="blockfam-banner" class="blocklib-panel">
+            <h3 class="blocklib-panel-title">Banner<span class="blocklib-panel-count">1 variant</span></h3>
+            <div class="blocks-grid">
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Banner Stats Grid</h3>
+            <div class="block-badges"><span class="badge badge-success">Information Landing</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-24-dcf9e663.png" alt="Banner Stats Grid" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Impact stats block: heading + featured stat (233000+) + 2x2 grid of number/label pairs (74%/79%/270+/67000+) on white. Static metrics. Same family as banner-stats different layout.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/our-impact.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/our-impact.html</a>
+        </div>
+            </div>
+          </div>
+          <div id="blockfam-columns" class="blocklib-panel">
+            <h3 class="blocklib-panel-title">Columns<span class="blocklib-panel-count">3 variants</span></h3>
+            <div class="blocks-grid">
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Columns</h3>
+            <div class="block-badges"><span class="badge badge-success">Homepage</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-25-9add3bc3.png" alt="Columns" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Two-column: image collage (2-3 images) alongside text + Learn More CTA. Base columns pattern (text + media). No left/right variant per convention.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home.html</a>
+        </div>
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Columns Video</h3>
+            <div class="block-badges"><span class="badge badge-success">Homepage</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-26-51631e60.png" alt="Columns Video" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Two-column: text + heading + CTA buttons on one side | YouTube video embed with caption on the other. Compound block Columns + Video (YouTube). No left/right variant per convention.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home.html</a>
+        </div>
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Columns (Stats)</h3>
+            <div class="block-badges"><span class="badge badge-success">Homepage</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-27-1464af5c.png" alt="Columns (Stats)" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Stats ribbon: 3-up counter figures (270+ / 233000+ / 30+) with labels on a dark rounded full-width bar. Reusable columns variant for impact metrics.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home.html</a>
+        </div>
+            </div>
+          </div>
+          <div id="blockfam-cards" class="blocklib-panel">
+            <h3 class="blocklib-panel-title">Cards<span class="blocklib-panel-count">7 variants</span></h3>
+            <div class="blocks-grid">
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Cards Support</h3>
+            <div class="block-badges"><span class="badge badge-success">Homepage</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-28-cb91d74a.png" alt="Cards Support" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">4-up cards grid: circular image + heading + description + Learn More link per card. Standard reusable cards grid.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home.html</a>
+        </div>
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Cards Tiles</h3>
+            <div class="block-badges"><span class="badge badge-success">Information Landing</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-29-65db0ac1.png" alt="Cards Tiles" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">4-up cards tiles: square image + title only (no description or CTA). Distinct from cards-grid (has body + Learn More). Layout/content difference warrants a variant.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/who-we-are.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/who-we-are.html</a>
+        </div>
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Cards Profile</h3>
+            <div class="block-badges"><span class="badge badge-success">Information Detail</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-30-8c75be1e.png" alt="Cards Profile" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Profile cards grid: portrait photo + name + italic role title per person. Followed by a plain-text staff list. New variant distinct from cards-grid/cards-tiles. Used inside tabs (compound Tabs + Cards).</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/who-we-are/leadership-and-staff.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/who-we-are/leadership-and-staff.html</a>
+        </div>
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Cards Stats</h3>
+            <div class="block-badges"><span class="badge badge-success">Information Landing</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-31-4de75226.png" alt="Cards Stats" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Stats cards grid: circular image + large stat % (97/98/85/95) + caption per card. New variant distinct from cards-grid/cards-tiles/cards-profile (image + metric + label).</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/our-impact.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/our-impact.html</a>
+        </div>
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Cards Content</h3>
+            <div class="block-badges"><span class="badge badge-success">Information Landing</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-32-53ba17d7.png" alt="Cards Content" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Content cards grid: square image + bold title + description per card (no CTA link). Distinct from cards-grid (has Learn More + circular image) and cards-tiles (title only).</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/what-we-do.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/what-we-do.html</a>
+        </div>
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Cards Expand</h3>
+            <div class="block-badges"><span class="badge badge-success">Information Landing</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-33-2e3db6cf.png" alt="Cards Expand" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Expandable cards: image + title + chevron toggle + Donate button. Description revealed on hover/click (expand/collapse). BEHAVIOR change warrants variant. Interactive - requires JS decoration.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/get-involved/special-funds.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/get-involved/special-funds.html</a>
+        </div>
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Cards News</h3>
+            <div class="block-badges"><span class="badge badge-success">News Detail</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-34-0e746806.png" alt="Cards News" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">News cards: landscape image + bold title + date + description + Read More link per card. New variant. Rendered inside the dynamic Related Articles feed (compound custom-content + cards).</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/news/2023-njtl-essay-contest-winners.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/2023-njtl-essay-contest-winners.html</a>
+        </div>
+            </div>
+          </div>
+          <div id="blockfam-toc-profile" class="blocklib-panel">
+            <h3 class="blocklib-panel-title">Toc Profile<span class="blocklib-panel-count">1 variant</span></h3>
+            <div class="blocks-grid">
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Toc Profile</h3>
+            <div class="block-badges"><span class="badge badge-success">Information Detail</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-30-8c75be1e.png" alt="Toc Profile" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Tab switcher (STAFF / BOARD OF DIRECTORS) toggling between two content panels. Compound with cards-profile. Reusable toc-profile block.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/who-we-are/leadership-and-staff.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/who-we-are/leadership-and-staff.html</a>
+        </div>
+            </div>
+          </div>
+          <div id="blockfam-quote" class="blocklib-panel">
+            <h3 class="blocklib-panel-title">Quote<span class="blocklib-panel-count">3 variants</span></h3>
+            <div class="blocks-grid">
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Quote</h3>
+            <div class="block-badges"><span class="badge badge-success">Information Detail</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-35-5cc105b8.png" alt="Quote" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Testimonial quote: italic quote text + bold attribution (name + affiliation). Standard reusable quote block.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/get-involved/special-funds/chris-evert-50th-anniversary.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/get-involved/special-funds/chris-evert-50th-anniversary.html</a>
+        </div>
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Quote Image</h3>
+            <div class="block-badges"><span class="badge badge-success">Information Landing</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-36-01ec30a9.png" alt="Quote Image" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Quote with image: bold quote text + attribution alongside a portrait image. Distinct from text-only quote. Image side is order-only (no left/right variant).</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/get-involved/young-professional-initiative.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/get-involved/young-professional-initiative.html</a>
+        </div>
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Quote Tweet</h3>
+            <div class="block-badges"><span class="badge badge-success">News Detail</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-37-f03a60fc.png" alt="Quote Tweet" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Embedded tweet styled as a quote: tweet text + @mentions + hashtags + pic.twitter link + handle/date footer. Twitter/X embed widget (platform.twitter.com). NOTE: live third-party embed with consent/script dependency despite quote styling.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/news/carol-ngounoue-runner-up-wimbledon-event.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/carol-ngounoue-runner-up-wimbledon-event.html</a>
+        </div>
+            </div>
+          </div>
+          <div id="blockfam-table" class="blocklib-panel">
+            <h3 class="blocklib-panel-title">Table<span class="blocklib-panel-count">2 variants</span></h3>
+            <div class="blocks-grid">
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Table</h3>
+            <div class="block-badges"><span class="badge badge-success">News Detail</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-38-f44ad1e2.png" alt="Table" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Two-column data table: Winners | NJTL Chapter header row with paired rows below. Standard reusable table block.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/news/2023-njtl-essay-contest-winners.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/2023-njtl-essay-contest-winners.html</a>
+        </div>
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Table (directory)</h3>
+            <div class="block-badges"><span class="badge badge-success">Information Detail</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-39-426481a1.png" alt="Table (directory)" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Multi-column name directory (Table variant): a bold heading over a list of &quot;Name, role&quot; lines per column, with thin vertical dividers between columns. Source: the Leadership &amp; Staff Board of Directors panel (Officers and Directors / Advisory Board / Honorary Board). Columns stack on mobile.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/who-we-are/leadership-and-staff.html#tab=boardofdirectors" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/who-we-are/leadership-and-staff.html#tab=boardofdirectors</a>
+        </div>
+            </div>
+          </div>
+          <div id="blockfam-social" class="blocklib-panel">
+            <h3 class="blocklib-panel-title">Social<span class="blocklib-panel-count">1 variant</span></h3>
+            <div class="blocks-grid">
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Social</h3>
+            <div class="block-badges"><span class="badge badge-success">News Detail</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-40-66f9084c.png" alt="Social" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Social share bar: Facebook / Twitter-X / LinkedIn share + copy-link + print icons. Reusable share block on article pages. Requires JS (share intents / clipboard / print).</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/news/2023-njtl-essay-contest-winners.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/2023-njtl-essay-contest-winners.html</a>
+        </div>
+            </div>
+          </div>
+          <div id="blockfam-custom-content" class="blocklib-panel">
+            <h3 class="blocklib-panel-title">Custom Content<span class="blocklib-panel-count">1 variant</span></h3>
+            <div class="blocks-grid">
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Custom Content Related Articles</h3>
+            <div class="block-badges"><span class="badge badge-success">News Detail</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-34-0e746806.png" alt="Custom Content Related Articles" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Related Articles feed: dynamically-populated list of related news articles. Query/feed logic is custom (backend/index dependency). Compound with cards-news. Renders news cards.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/news/2023-njtl-essay-contest-winners.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/2023-njtl-essay-contest-winners.html</a>
+        </div>
+            </div>
+          </div>
+          <div id="blockfam-embed" class="blocklib-panel">
+            <h3 class="blocklib-panel-title">Embed<span class="blocklib-panel-count">1 variant</span></h3>
+            <div class="blocks-grid">
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Embed Instagram</h3>
+            <div class="block-badges"><span class="badge badge-success">News Detail</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-41-12cd67e6.png" alt="Embed Instagram" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Instagram post embed (third-party iframe/script) placed alongside article text (2-col). Reusable social embed block. Compound with columns (embed + text).</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/news/newport-njtl-honor-chris-evert.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/newport-njtl-honor-chris-evert.html</a>
+        </div>
+            </div>
+          </div>
+          <div id="blockfam-video" class="blocklib-panel">
+            <h3 class="blocklib-panel-title">Video<span class="blocklib-panel-count">1 variant</span></h3>
+            <div class="blocks-grid">
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Video Embed</h3>
+            <div class="block-badges"><span class="badge badge-success">News Detail</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-42-c5f40570.png" alt="Video Embed" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">YouTube video embed shown in consent-gated placeholder state (This video requires Social Media cookies). Real URL held in iframe data-src (youtube.com/embed/...); wrapper class usta-consent-embed swaps data-src to src only after Social Media cookie consent. See comments.txt for why-blocked analysis.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/news/usta-foundation-launches-community-impact-hub-initiative.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/news/usta-foundation-launches-community-impact-hub-initiative.html</a>
+        </div>
+            </div>
+          </div>
+          <div id="blockfam-custom-form" class="blocklib-panel">
+            <h3 class="blocklib-panel-title">Custom Form<span class="blocklib-panel-count">1 variant</span></h3>
+            <div class="blocks-grid">
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Custom Form Donate</h3>
+            <div class="block-badges"><span class="badge badge-success">Information Detail</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-43-dc36bb72.png" alt="Custom Form Donate" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">Inline embedded donation form (One-time/Monthly toggle + amount tiers + custom amount + dedicate/honoree fields + designation + Donate and Support CTA). Third-party donation platform embed. Distinct from sticky global donate widget (custom-widget-donate) - this is inline in page body.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home/get-involved/special-funds/chris-evert-50th-anniversary.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/get-involved/special-funds/chris-evert-50th-anniversary.html</a>
+        </div>
+            </div>
+          </div>
+          <div id="blockfam-spacer" class="blocklib-panel">
+            <h3 class="blocklib-panel-title">Spacer<span class="blocklib-panel-count">1 variant</span></h3>
+            <div class="blocks-grid">
+        <div class="block-card">
+          <div class="block-header">
+            <h3>Spacer</h3>
+            <div class="block-badges"><span class="badge badge-primary">Layout</span></div>
+          </div>
+          <div class="block-screenshots"><div class="screenshot-item"><img src="images/img-44-b73ca069.png" alt="Spacer" loading="lazy" onclick="openModal(this.src, this.alt)"></div></div>
+          <p class="block-notes">An authorable vertical gap / full-bleed colored band. Authors set a height per breakpoint (desktop &ge;1200, tablet &ge;992, mobile &lt;992) and, optionally, a color. When a color is set the spacer becomes a full-bleed band (breaks out of the section&#x27;s content padding). Color accepts a design-token NAME (stats-band-bg, cards-band-bg, section-yellow-bg, section-blue-bg), a full var(--x) ref, or a raw CSS color (#e2f7ff). A colorless spacer is just a transparent gap for controlling rhythm.</p>
+          <a class="block-url" href="https://www.ustafoundation.com/en/home.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home.html</a>
+        </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-buttons" class="tab-content">
+        <div class="btn-note-bar">Buttons are tracked separately from blocks (they are UI elements, not standalone EDS blocks). 1 button variant(s) observed across the site, with per-page usage counts below.</div>
+        <div class="buttons-grid">
+        <div class="button-card">
+          <div class="block-header">
+            <h3>Button Primary</h3>
+            <div class="block-badges"><span class="badge badge-success">6 seen</span></div>
+          </div>
+          <div class="button-shot"><img src="images/img-45-78d61689.png" alt="Button Primary" loading="lazy" onclick="openModal(this.src, this.alt)"></div>
+          <div class="button-meta"><table>
+            <tr><td class="k">Variant</td><td>button-primary</td></tr>
+            <tr><td class="k">Style</td><td>Solid blue filled</td></tr>
+          </table></div>
+          <div class="button-usage">
+            <table>
+              <thead><tr><th>Page URL</th><th style="text-align:center;">Count</th><th>Example Label</th><th>Notes</th></tr></thead>
+              <tbody><tr>
+              <td><a href="https://www.ustafoundation.com/en/home.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home.html</a></td>
+              <td style="text-align:center;"><span class="button-count">5</span></td>
+              <td>DONATE NOW / LEARN MORE / WHO WE ARE / WHAT WE DO</td>
+              <td>Primary CTA. Header Donate + hero Learn More + 2 in columns-video section + footer Keep Up With Us</td>
+            </tr><tr>
+              <td><a href="https://www.ustafoundation.com/en/home/who-we-are.html" target="_blank" rel="noopener">https://www.ustafoundation.com/en/home/who-we-are.html</a></td>
+              <td style="text-align:center;"><span class="button-count">1</span></td>
+              <td>LEARN MORE</td>
+              <td>Primary CTA style reused on Information Landing</td>
+            </tr></tbody>
+            </table>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>Generated from Experience Catalyst — template captures mapped to page clusters + block-inventory | ustafoundation.com</p>
+    </footer>
+  </div>
+  <div class="modal" id="modal">
+    <div class="modal-bar">
+      <span class="modal-title" id="modal-title"></span>
+      <button type="button" class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-content"><img id="modal-img" src="" alt="Full template"></div>
+  </div>
+  <script>
+    function switchTab(e,id){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+id).classList.add('active');e.currentTarget.classList.add('active');}
+    function switchBlockFamily(e,fam){document.querySelectorAll('.blocklib-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.blocklib-tab').forEach(t=>t.classList.remove('active'));document.getElementById('blockfam-'+fam).classList.add('active');e.currentTarget.classList.add('active');}
+    function openModal(src,title){var m=document.getElementById('modal');document.getElementById('modal-img').src=src;document.getElementById('modal-title').textContent=title||'';m.classList.add('active');m.scrollTop=0;document.body.style.overflow='hidden';}
+    function closeModal(){document.getElementById('modal').classList.remove('active');document.body.style.overflow='';}
+    function openLightbox(src,title){openModal(src,title);}
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
+    document.getElementById('modal').addEventListener('click',function(e){if(e.target===this||e.target.classList.contains('modal-content'))closeModal();});
+  </script>
+<script id="pu-data">
+window.__PU_SITE__="usta-foundation";
+window.__PU_URLS__=["https://www.ustafoundation.com/", "https://www.ustafoundation.com/en/home.html", "https://www.ustafoundation.com/en/home/who-we-are.html", "https://www.ustafoundation.com/en/home/who-we-are/leadership-and-staff.html", "https://www.ustafoundation.com/en/home/who-we-are/financials.html", "https://www.ustafoundation.com/en/home/our-impact.html", "https://www.ustafoundation.com/en/home/what-we-do.html", "https://www.ustafoundation.com/en/home/what-we-do/college-scholarship-opportunities.html", "https://www.ustafoundation.com/en/home/get-involved.html", "https://www.ustafoundation.com/en/home/get-involved/special-funds.html", "https://www.ustafoundation.com/en/home/get-involved/special-funds/chris-evert-50th-anniversary.html", "https://www.ustafoundation.com/en/home/get-involved/young-professional-initiative.html", "https://www.ustafoundation.com/en/home/news.html", "https://www.ustafoundation.com/en/home/news/2023-njtl-essay-contest-winners.html", "https://www.ustafoundation.com/en/home/news/six-student-athletes-awarded-first-grants-frances-tiafoe-fund.html", "https://www.ustafoundation.com/en/home/news/chris-evert-usta-foundation-much-more.html", "https://www.ustafoundation.com/en/home/news/espn-chris-mckendry-supports-usta-foundation.html", "https://www.ustafoundation.com/en/home/news/inaugural-usta-foundation-impact-conference.html", "https://www.ustafoundation.com/en/home/news/newport-njtl-honor-chris-evert.html", "https://www.ustafoundation.com/en/home/news/kimmelman-sport-education-complex-los-angeles.html", "https://www.ustafoundation.com/en/home/news/frances-tiafoe-presents-check-to-jtcc.html", "https://www.ustafoundation.com/en/home/news/carol-ngounoue-runner-up-wimbledon-event.html", "https://www.ustafoundation.com/en/home/news/njtl-essay-contest-winners-2024-open.html", "https://www.ustafoundation.com/en/home/news/robin-montgomery-investing-in-game.html", "https://www.ustafoundation.com/en/home/news/novo-nordisk-donnelly-scholarship-winners-meet-billie-jean-king.html", "https://www.ustafoundation.com/en/home/news/kathleen-wu-usta-foundation-president.html", "https://www.ustafoundation.com/en/home/news/njtl-student-athletes-white-house-visit.html", "https://www.ustafoundation.com/en/home/news/robin-montgomery-wimbledon-debut.html", "https://www.ustafoundation.com/en/home/news/tiafoe-houston-youth-clinic.html", "https://www.ustafoundation.com/en/home/news/jinjie-ling-dwight-f-davis-memorial-scholarship.html", "https://www.ustafoundation.com/en/home/news/james-blake-30th-anniversary-usta-foundation.html", "https://www.ustafoundation.com/en/home/news/clervie-ngounoue-first-junior-grand-slam-australia.html", "https://www.ustafoundation.com/en/home/news/chris-evert-honored-espn-sports-humanitarian-awards.html", "https://www.ustafoundation.com/en/home/news/njtl-student-athlete-ata-national-championships.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-announces-chris-evert-chair.html", "https://www.ustafoundation.com/en/home/news/ngounoue-excellence-team-junior-french-open.html", "https://www.ustafoundation.com/en/home/news/njtl-ace-jabeiro-brown.html", "https://www.ustafoundation.com/en/home/news/chris-evert-honored-espys-usta-foundation-work.html", "https://www.ustafoundation.com/en/home/news/clervie-ngounoue-wins-first-junior-grand-slam-australian-open.html", "https://www.ustafoundation.com/en/home/news/mississippi-njtl-family-biz-builder.html", "https://www.ustafoundation.com/en/home/news/kyrgios-sock-njtl-clinic-laver-cup-boston.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-chris-evert-honored-itf-commitment-award.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-chairperson-chris-evert-announces-cancer-free.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-rally-to-rebuild-campaign.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-exceeds-goal-rally-to-rebuild-campaign.html", "https://www.ustafoundation.com/en/home/news/njtl-essay-grant-recipients-2020.html", "https://www.ustafoundation.com/en/home/news/evert-speaks-on-rally-to-rebuild.html", "https://www.ustafoundation.com/en/home/news/sloane-stephens-honored-by-sports-business-journal.html", "https://www.ustafoundation.com/en/home/news/mackenzie-mcdonald-celebrates-the-launch-of-the-usta-foundation-.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-teams-up-with-la-roche-posay-for-events-at-selec.html", "https://www.ustafoundation.com/en/home/news/frances-tiafoe-holds-clinic-for-youth-from-houston-tennis-associ.html", "https://www.ustafoundation.com/en/home/news/delray-beach-youth-tennis-foundation-athletes-hit-the-court-with.html", "https://www.ustafoundation.com/en/home/news/mackenzie-mcdonald---i-m-making-it-my-mission-to-help-open-the-s.html", "https://www.ustafoundation.com/en/home/news/leylah-fernandez-partners-with-usta-socal-and-bgcmla-for-youth-c.html", "https://www.ustafoundation.com/en/home/news/excellence-program-alumna-robin-montgomery-reaches-first-wta-sem.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-announces-new-advisory-board-members.html", "https://www.ustafoundation.com/en/home/news/what-s-the-why--former-atp--wta-pros-open-up-on-their-support-of.html", "https://www.ustafoundation.com/en/home/news/fashion-icon-anna-wintour-honored-with-usta-foundation-paver-on-.html", "https://www.ustafoundation.com/en/home/news/laver-cup-launches-2025-san-francisco-community-legacy-project-w.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-to-honor-andre-agassi-with-serving-up-dreams-awa.html", "https://www.ustafoundation.com/en/home/news/frances-tiafoe-awards-njtl-alumnus-with-college-scholarship.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-to-celebrate-winners-of-2025-national-junior-ten.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-launches-community-impact-hub-initiative.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-scholarship-recipients-meet-billie-jean-king-at-.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-launches-williams-family-excellence-program-at-2.html", "https://www.ustafoundation.com/en/home/news/laver-cup-community-legacy-project-celebrates-court-unveiling-at.html", "https://www.ustafoundation.com/en/home/news/-daymond-john-and-matt-ebert-share-wisdom-with-usta-foundation-s.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-receives-transformative--2-7-million-gift-from-t.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-pledges-800-000-service-hours-in-support-of-mart.html", "https://www.ustafoundation.com/en/home/news/black-history-month-2026--community-impact-hub-leader-john-borde.html", "https://www.ustafoundation.com/en/home/news/desert-smash-brings-together-hollywood-and-pro-tennis-to-benefit.html", "https://www.ustafoundation.com/en/home/news/kings-county-tennis-league-nominated-for-laureus-sport-for-good-.html", "https://www.ustafoundation.com/en/home/news/how-the-usta-foundation-and-realize-the-dream-are-set-to-inspire.html", "https://www.ustafoundation.com/en/home/news/women-s-history-month-2026--how-two-community-impact-hub-leaders.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-and-reginald-f--lewis-foundation-partner-to-empo.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-and-yonex-team-up-to-transform-communities-and-e.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-partners-with-chase-to-award-over--250-000-to-he.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-announces-sloane-stephens-as-recipient-of-servin.html", "https://www.ustafoundation.com/en/home/news/frances-tiafoe-fund-surpasses--1-million-raised.html", "https://www.ustafoundation.com/en/home/news/-tennis-has-been-my-vehicle-to-serve---sloane-stephens-shares-he.html", "https://www.ustafoundation.com/en/home/news/2026-usta-foundation-opening-night-gala-provides-young-people-wi.html", "https://www.ustafoundation.com/en/home/news/usta-foundation--offline-by-aerie---and-the-aerie-real-foundatio.html", "https://www.ustafoundation.com/en/home/news/usta-foundation--reginald-f--lewis-foundation-announce-inaugural.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-celebrates-2026-njtl-essay-contest-winners-at-us.html", "https://www.ustafoundation.com/en/home/news/usta-foundation-scholarship-recipients-meet-billie-jean-king-at-0.html", "https://www.ustafoundation.com/en/home/404.html"];
+function puToggle(btn){var b=document.getElementById("pu-body");var open=b.style.display!=="none";b.style.display=open?"none":"block";var c=btn.querySelector(".pu-caret");if(c)c.textContent=open?"▶":"▼";}
+function puDownload(){var blob=new Blob([window.__PU_URLS__.join("\n")+"\n"],{type:"text/plain;charset=utf-8"});var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download=window.__PU_SITE__+"-urls.txt";document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(url);},1500);}
+</script>
+</body>
+</html>
